@@ -1,4 +1,4 @@
-package exercicio;
+package exercicio.src.exercicio;
 
 public class Cliente extends Thread {
     private long horaChegada;

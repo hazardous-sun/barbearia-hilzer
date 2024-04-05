@@ -1,4 +1,4 @@
-package exercicio;
+package exercicio.src.exercicio;
 
 public class GeradorClientes extends Thread {
     GeradorClientes(Barbearia barbearia) {
