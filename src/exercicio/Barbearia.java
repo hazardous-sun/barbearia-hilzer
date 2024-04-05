@@ -13,12 +13,12 @@ public class Barbearia {
     public static void main(String[] args) {
         Barbearia barbearia = new Barbearia();
         GeradorClientes geradorClientes = new GeradorClientes(barbearia);
-
     }
 
     public Barbearia() {
         this.clientesLevantados = new LinkedList<>();
         this.banco = new LinkedList<>();
+        this.maquininha = new Maquininha();
     }
 
     public synchronized void addCliente(Cliente novoCliente) {
@@ -26,21 +26,31 @@ public class Barbearia {
             return;
         }
         clientesLevantados.add(novoCliente);
+        preencherBanco();
     }
 
-    private void preencherBanco() {}
+    private void preencherBanco() {
+        while (banco.size() < TAMANHO_BANCO && !clientesLevantados.isEmpty()) {
+            banco.add(clientesLevantados.poll());
+        }
+    }
 
     private boolean populationExceeded() {
-        return (clientesLevantados.size() + banco.size()) >= QUANTIDADE_MAX_CLIENTES;
+        return totalPopulation() >= QUANTIDADE_MAX_CLIENTES;
+    }
+
+    public int totalPopulation() {
+        return clientesLevantados.size() + banco.size();
     }
 
     public synchronized Cliente chamarCliente() {
         Cliente temp = banco.poll();
-        banco.add(clientesLevantados.poll());
+        preencherBanco();
         return temp;
     }
 
-    public synchronized Maquininha pegarMaquinha() {
+    public synchronized Maquininha pegarMaquinha(Cliente cliente) {
+        maquininha.cobrarCliente(cliente);
         return this.maquininha;
     }
 
