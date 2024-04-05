@@ -6,4 +6,15 @@ public class Cliente extends Thread {
     Cliente() {
         this.horaChegada = System.nanoTime();
     }
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                sleep(10000);
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+        }
+    }
 }
