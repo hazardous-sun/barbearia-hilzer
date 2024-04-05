@@ -6,7 +6,9 @@ public class Barbearia {
     private ArrayList<Cliente> clientesDentro;
     private ArrayList<Cliente> banco;
 
+    // construtor
     public Barbearia() {
+        
         this.clientesDentro = new ArrayList<>();
     }
 
