@@ -1,10 +1,12 @@
 package exercicio.src.exercicio;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class Barbearia {
     private final int QUANTIDADE_MAX_CLIENTES = 20;
+    private final int QUANTIDADE_MAX_BARBEIROS = 3;
     private final int TAMANHO_BANCO = 4;
     private Queue<Cliente> clientesLevantados;
     private Queue<Cliente> banco;
@@ -12,7 +14,19 @@ public class Barbearia {
 
     public static void main(String[] args) {
         Barbearia barbearia = new Barbearia();
+
         GeradorClientes geradorClientes = new GeradorClientes(barbearia);
+        geradorClientes.start();
+
+        ArrayList<Barbeiro> barbeiros = new ArrayList<>();
+
+        for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
+            barbeiros.add(new Barbeiro(barbearia));
+        }
+
+        for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
+            barbeiros.get(i).start();
+        }
     }
 
     public Barbearia() {
