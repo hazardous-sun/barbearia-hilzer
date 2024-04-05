@@ -1,5 +1,9 @@
 package exercicio.src.exercicio;
 public class Barbeiro extends Thread {
+    private Barbearia barbearia;
+    public Barbeiro(Barbearia barbearia) {
+        this.barbearia = barbearia;
+    }
     private void atenderCliente(Barbearia barbearia) {
         while (barbearia.totalPopulation() > 0) {
             Cliente cliente = barbearia.chamarCliente();
@@ -13,7 +17,8 @@ public class Barbeiro extends Thread {
         }
     }
 
-    public void run(Barbearia barbearia) {
-        atenderCliente(barbearia);
+    @Override
+    public void run() {
+        atenderCliente(this.barbearia);
     }
 }
