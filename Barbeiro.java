@@ -9,7 +9,7 @@ public class Barbeiro extends Thread {
         }
     }
 
-    public void run(Barbearia barbearia) {
-        atenderCliente();
-    }
+//    public void run(Barbearia barbearia) {
+//        atenderCliente();
+//    }
 }

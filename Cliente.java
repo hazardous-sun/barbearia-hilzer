@@ -3,7 +3,7 @@ package exercicio;
 public class Cliente extends Thread {
     private long horaChegada;
 
-    Cliente(Barbearia barbearia) {
+    Cliente() {
         this.horaChegada = System.nanoTime();
     }
 }

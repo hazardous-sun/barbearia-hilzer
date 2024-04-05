@@ -10,6 +10,12 @@ public class Barbearia {
     private Queue<Cliente> banco;
     private Maquininha maquininha;
 
+    public static void main(String[] args) {
+        Barbearia barbearia = new Barbearia();
+        GeradorClientes geradorClientes = new GeradorClientes(barbearia);
+
+    }
+
     public Barbearia() {
         this.clientesLevantados = new LinkedList<>();
         this.banco = new LinkedList<>();
@@ -22,8 +28,10 @@ public class Barbearia {
         clientesLevantados.add(novoCliente);
     }
 
+    private void preencherBanco() {}
+
     private boolean populationExceeded() {
-        return clientesLevantados.size() >= QUANTIDADE_MAX_CLIENTES;
+        return (clientesLevantados.size() + banco.size()) >= QUANTIDADE_MAX_CLIENTES;
     }
 
     public synchronized Cliente chamarCliente() {
@@ -34,5 +42,16 @@ public class Barbearia {
 
     public synchronized Maquininha pegarMaquinha() {
         return this.maquininha;
+    }
+
+    @Override
+    public String toString() {
+        return "Barbearia{" +
+                "QUANTIDADE_MAX_CLIENTES=" + QUANTIDADE_MAX_CLIENTES +
+                ", TAMANHO_BANCO=" + TAMANHO_BANCO +
+                ", clientesLevantados=" + clientesLevantados +
+                ", banco=" + banco +
+                ", maquininha=" + maquininha +
+                '}';
     }
 }
