@@ -12,6 +12,7 @@ public class Barbearia {
         this.clientesDentro = new ArrayList<>();
     }
 
+    // adiciona cliente
     public synchronized void addCliente(Cliente novoCliente) {
         if (populationExceeded()) {
             return;
