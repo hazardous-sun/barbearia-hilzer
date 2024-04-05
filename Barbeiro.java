@@ -1,5 +1,4 @@
 package exercicio;
-
 public class Barbeiro extends Thread {
     public void atenderCliente(Cliente cliente) {
         System.out.println("Cliente sendo atendido");
