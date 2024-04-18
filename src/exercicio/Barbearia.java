@@ -1,5 +1,6 @@
-package exercicio.src.exercicio;
-
+import java.io.BufferedWriter;
+import java.io.File;
+import java.nio.file.FileStore;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -11,23 +12,24 @@ public class Barbearia {
 
     private Queue<Cliente> clientesLevantados;
     private Queue<Cliente> banco;
-    private ArrayList<Cliente> barbeiros;
+
+    private ArrayList<Barbeiro> barbeiros;
+
     private Maquininha maquininha;
 
     public static void main(String[] args) {
         Barbearia barbearia = new Barbearia();
-        
-        ArrayList<Barbeiro> barbeiros = new ArrayList<>();
+
         
         for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
-            barbeiros.add(new Barbeiro(barbearia));
+            barbearia.barbeiros.add(new Barbeiro(barbearia));
         }
         
         for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
-            barbeiros.get(i).start();
+            barbearia.barbeiros.get(i).start();
         }
-        
-        barbearia.setBarbeiros(barbeiros);
+
+        // 
 
         GeradorClientes geradorClientes = new GeradorClientes(barbearia);
         geradorClientes.start();
@@ -37,34 +39,53 @@ public class Barbearia {
     public Barbearia() {
         this.clientesLevantados = new LinkedList<>();
         this.banco = new LinkedList<>();
+        this.barbeiros = new ArrayList<>();
         this.maquininha = new Maquininha();
-    }
-
-    public void setBarbeiros( ArrayList<Barbeiro> b ) {
-        this.barbeiros = b;
     }
 
     public synchronized void addCliente(Cliente novoCliente) {
         
-        if (populationExceeded()) {
+        if ( populationExceeded() ) {
             return;
         }
 
         clientesLevantados.add(novoCliente);
+
         preencherBanco();
 
-
-        for ( Barbeiro b : barbeiros ) {
-            if ( b.getState() == d) {
-                b.notify();
-            }
-        }
-        // this.
-
         this.Display();
+
+        acordaBarbeiros();
     }
 
+    private void acordaBarbeiros() {
 
+        // tem que ajeitar essa bosta
+        // é apenas um prototipo
+        for (Barbeiro b : barbeiros) {
+
+            synchronized (b) {
+                // System.out.println("barb: " + b.getNome() + ": " + b.getState());
+                if (b.getBarbeiroState() == BarbeirosState.DORMINDO) {
+                    b.notify();
+                }
+            }
+        }
+    }
+
+    // Prototipo pra resolver o problema
+    public void barbeiroFinalizou ( Barbeiro b ) {
+        
+        synchronized (maquininha) {
+            maquininha.returnMaquininha();
+        }
+
+        if ( ! hasBanco() ) {
+            synchronized (b) {
+                b.dormir();
+            }
+        }
+    }
 
     private void preencherBanco() {
         while (banco.size() < TAMANHO_BANCO && !clientesLevantados.isEmpty()) {
@@ -76,20 +97,43 @@ public class Barbearia {
         return totalPopulation() >= QUANTIDADE_MAX_CLIENTES;
     }
 
-    public int totalPopulation() {
+    public synchronized int totalPopulation() {
         return clientesLevantados.size() + banco.size();
+    }
+
+    public boolean hasBanco() {
+        return banco.size() > 0;
+    }
+
+    public synchronized Cliente requestClient(  ) {
+        if ( totalPopulation() > 0 ) {
+            return chamarCliente();
+        }
+
+        return null;
     }
 
     public synchronized Cliente chamarCliente() {
         Cliente temp = banco.poll();
         preencherBanco();
+        
         return temp;
     }
 
-    public synchronized Maquininha pegarMaquinha(Cliente cliente) {
-        maquininha.cobrarCliente(cliente);
-        return this.maquininha;
+    public synchronized Maquininha requestPOS() {
+        return maquininha.getMaquininha();
     }
+
+    public void Display() {
+        System.out.println(toString());
+    }
+
+
+    /**
+     * 
+     * cli stuff
+     * 
+     */
 
     @Override
     public String toString() {
@@ -102,13 +146,45 @@ public class Barbearia {
         //         '}';
 
         return "Barbearia{ \n"
-            + "\tBanco = " + banco + "\n"
-            + "\tLevan = " + clientesLevantados + "\n" 
+            + "\tBarbeiros = " + _getBarbeiros() + "\n"
+            + this._line(30)
+            + "\tBanco = " + banco.size() + "\n"
+            + this._line(30)
+            + "\tLevan = " + _getClientesLevantados() + "\n" 
+            + this._line(30)
             + "\tMaqui = " + maquininha + "\n" 
         + "}";
     }
+    private String _line(int size) {
+        String s = "";
+        for (int i = 0; i < size; i++) {
+            s+='-';
+        }
+        return s+'\n';
+    }
+    private String _getClientesLevantados() {
+        StringBuffer s = new StringBuffer();
+        s.append('[');
 
-    public void Display() {
-        System.out.println(toString());
+        clientesLevantados.forEach( c -> {
+            s.append(c.getNome() + " ");
+        });
+
+        s.append(']');
+
+        return s.toString();
+    }
+
+    private String _getBarbeiros() {
+        StringBuffer s = new StringBuffer();
+        s.append("[ ");
+
+        barbeiros.forEach( b -> {
+            s.append("| " + b.toString() + " | ");
+        });
+
+        s.append(']');
+
+        return s.toString();
     }
 }
