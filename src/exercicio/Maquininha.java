@@ -1,23 +1,49 @@
 package exercicio.src.exercicio;
 
+import java.util.concurrent.Semaphore;
+
 public class Maquininha extends Thread {
+
+    private Semaphore sem;
+
+    Maquininha () {
+        sem = new Semaphore(1);
+    }
+
     public synchronized void cobrarCliente(Cliente cliente) {
-        System.out.println("Cliente sendo cobrado.");
+        System.out.println("Cliente sendo cobrado");
+    
         try {
-            sleep((int) (Math.random() * Math.random()));
-        } catch (InterruptedException e) {
+            sleep( Utils.RandomIntN(2, 10) * 1_000 );
+        } 
+        catch (InterruptedException e) {
+
             System.out.println(e);
         }
     }
 
-    @Override
-    public void run() {
-        while (true) {
+    public synchronized Maquininha getMaquininha() {
+
+        while ( ! sem.tryAcquire() ) {
             try {
-                sleep(10000);
-            } catch (InterruptedException e) {
-                System.out.println(e);
+                this.wait();
+            }
+            catch ( InterruptedException e ) {
+                System.out.println(e.getMessage());
             }
         }
+
+        return this;
+    }
+
+    public  void returnMaquininha() {
+        sem.release();
+        this.notify();
+    }
+
+
+    @Override
+    public void run() {
+        while (true) {}
     }
 }
