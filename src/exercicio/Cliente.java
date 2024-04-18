@@ -1,4 +1,3 @@
-
 public class Cliente extends Thread {
     public static int TotalClientes = 0;
 

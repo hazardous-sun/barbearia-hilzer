@@ -1,4 +1,4 @@
-
+package exercicio.src.exercicio;
 public class GeradorClientes extends Thread {
 
     private final int MAX = 5;

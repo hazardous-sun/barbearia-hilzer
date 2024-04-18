@@ -1,3 +1,5 @@
+package exercicio.src.exercicio;
+
 import java.util.concurrent.Semaphore;
 
 public class Maquininha extends Thread {
@@ -15,6 +17,7 @@ public class Maquininha extends Thread {
             sleep( Utils.RandomIntN(2, 10) * 1_000 );
         } 
         catch (InterruptedException e) {
+
             System.out.println(e);
         }
     }
@@ -41,12 +44,6 @@ public class Maquininha extends Thread {
 
     @Override
     public void run() {
-        while (true) {
-            // try {
-                // sleep(10_000);
-            // } catch (InterruptedException e) {
-                // System.out.println(e);
-            // }
-        }
+        while (true) {}
     }
 }

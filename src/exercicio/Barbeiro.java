@@ -1,3 +1,4 @@
+package exercicio.src.exercicio;
 
 public class Barbeiro extends Thread {
 

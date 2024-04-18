@@ -1,6 +1,8 @@
+package exercicio.src.exercicio;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.nio.file.FileStore;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -15,11 +17,11 @@ public class Barbearia {
 
     private ArrayList<Barbeiro> barbeiros;
 
+
     private Maquininha maquininha;
 
     public static void main(String[] args) {
         Barbearia barbearia = new Barbearia();
-
         
         for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
             barbearia.barbeiros.add(new Barbeiro(barbearia));
@@ -29,11 +31,8 @@ public class Barbearia {
             barbearia.barbeiros.get(i).start();
         }
 
-        // 
-
         GeradorClientes geradorClientes = new GeradorClientes(barbearia);
         geradorClientes.start();
-        
     }
 
     public Barbearia() {
@@ -44,7 +43,6 @@ public class Barbearia {
     }
 
     public synchronized void addCliente(Cliente novoCliente) {
-        
         if ( populationExceeded() ) {
             return;
         }
@@ -96,7 +94,7 @@ public class Barbearia {
     private boolean populationExceeded() {
         return totalPopulation() >= QUANTIDADE_MAX_CLIENTES;
     }
-
+    
     public synchronized int totalPopulation() {
         return clientesLevantados.size() + banco.size();
     }
@@ -137,14 +135,6 @@ public class Barbearia {
 
     @Override
     public String toString() {
-        // return "Barbearia{" +
-        //         "QUANTIDADE_MAX_CLIENTES=" + QUANTIDADE_MAX_CLIENTES +
-        //         ", TAMANHO_BANCO=" + TAMANHO_BANCO +
-        //         ", clientesLevantados=" + clientesLevantados +
-        //         ", banco=" + banco +
-        //         ", maquininha=" + maquininha +
-        //         '}';
-
         return "Barbearia{ \n"
             + "\tBarbeiros = " + _getBarbeiros() + "\n"
             + this._line(30)
