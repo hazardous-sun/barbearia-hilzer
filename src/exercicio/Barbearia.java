@@ -1,7 +1,4 @@
 package exercicio.src.exercicio;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.nio.file.FileStore;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -14,19 +11,16 @@ public class Barbearia {
 
     private Queue<Cliente> clientesLevantados;
     private Queue<Cliente> banco;
-
     private ArrayList<Barbeiro> barbeiros;
-
-
     private Maquininha maquininha;
 
     public static void main(String[] args) {
         Barbearia barbearia = new Barbearia();
-        
+
         for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
             barbearia.barbeiros.add(new Barbeiro(barbearia));
         }
-        
+
         for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
             barbearia.barbeiros.get(i).start();
         }
@@ -43,7 +37,7 @@ public class Barbearia {
     }
 
     public synchronized void addCliente(Cliente novoCliente) {
-        if ( populationExceeded() ) {
+        if (populationExceeded()) {
             return;
         }
 
@@ -57,28 +51,25 @@ public class Barbearia {
     }
 
     private void acordaBarbeiros() {
-
-        // tem que ajeitar essa bosta
-        // é apenas um prototipo
+        // TODO reanalyze this logic
         for (Barbeiro b : barbeiros) {
 
             synchronized (b) {
-                // System.out.println("barb: " + b.getNome() + ": " + b.getState());
                 if (b.getBarbeiroState() == BarbeirosState.DORMINDO) {
                     b.notify();
                 }
             }
+
         }
     }
 
-    // Prototipo pra resolver o problema
-    public void barbeiroFinalizou ( Barbeiro b ) {
-        
+    public void barbeiroFinalizou(Barbeiro b) {
+
         synchronized (maquininha) {
             maquininha.returnMaquininha();
         }
 
-        if ( ! hasBanco() ) {
+        if (!hasBanco()) {
             synchronized (b) {
                 b.dormir();
             }
@@ -94,7 +85,7 @@ public class Barbearia {
     private boolean populationExceeded() {
         return totalPopulation() >= QUANTIDADE_MAX_CLIENTES;
     }
-    
+
     public synchronized int totalPopulation() {
         return clientesLevantados.size() + banco.size();
     }
@@ -103,8 +94,8 @@ public class Barbearia {
         return banco.size() > 0;
     }
 
-    public synchronized Cliente requestClient(  ) {
-        if ( totalPopulation() > 0 ) {
+    public synchronized Cliente requestClient() {
+        if (totalPopulation() > 0) {
             return chamarCliente();
         }
 
@@ -114,7 +105,7 @@ public class Barbearia {
     public synchronized Cliente chamarCliente() {
         Cliente temp = banco.poll();
         preencherBanco();
-        
+
         return temp;
     }
 
@@ -128,35 +119,35 @@ public class Barbearia {
 
 
     /**
-     * 
      * cli stuff
-     * 
      */
 
     @Override
     public String toString() {
         return "Barbearia{ \n"
-            + "\tBarbeiros = " + _getBarbeiros() + "\n"
-            + this._line(30)
-            + "\tBanco = " + banco.size() + "\n"
-            + this._line(30)
-            + "\tLevan = " + _getClientesLevantados() + "\n" 
-            + this._line(30)
-            + "\tMaqui = " + maquininha + "\n" 
-        + "}";
+                + "\tBarbeiros = " + _getBarbeiros() + "\n"
+                + this._line(30)
+                + "\tBanco = " + banco.size() + "\n"
+                + this._line(30)
+                + "\tLevan = " + _getClientesLevantados() + "\n"
+                + this._line(30)
+                + "\tMaqui = " + maquininha + "\n"
+                + "}";
     }
+
     private String _line(int size) {
         String s = "";
         for (int i = 0; i < size; i++) {
-            s+='-';
+            s += '-';
         }
-        return s+'\n';
+        return s + '\n';
     }
+
     private String _getClientesLevantados() {
         StringBuffer s = new StringBuffer();
         s.append('[');
 
-        clientesLevantados.forEach( c -> {
+        clientesLevantados.forEach(c -> {
             s.append(c.getNome() + " ");
         });
 
@@ -169,7 +160,7 @@ public class Barbearia {
         StringBuffer s = new StringBuffer();
         s.append("[ ");
 
-        barbeiros.forEach( b -> {
+        barbeiros.forEach(b -> {
             s.append("| " + b.toString() + " | ");
         });
 
