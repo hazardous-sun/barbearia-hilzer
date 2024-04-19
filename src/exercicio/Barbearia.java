@@ -1,15 +1,7 @@
 
-import java.awt.EventQueue;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.SwingUtilities;
 
 public class Barbearia {
     private final int QUANTIDADE_MAX_CLIENTES = 20;
