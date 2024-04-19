@@ -1,4 +1,5 @@
 
+import java.awt.EventQueue;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +8,8 @@ import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.SwingUtilities;
 
 public class Barbearia {
     private final int QUANTIDADE_MAX_CLIENTES = 20;
@@ -71,7 +74,6 @@ public class Barbearia {
          * Uma vez que preencherBanco() fará;
          */
         clientesLevantados.add(novoCliente);    
-        // updateGUI(UpdateTypes.Levantados);
 
         preencherBanco();
         acordaBarbeiros();
@@ -180,23 +182,28 @@ public class Barbearia {
      * 
      * Handler para a GUI, categorizado a fim de evitar
      * processamento desnecessaŕio.
+     * 
+     * Os barbeiros devem ser atualizados de maneira individual
+     * uma vez que podem trocar de estado simultâneamente
+     * e a GUI não pode lidar com isso
      */
-    public synchronized void updateGUI( UpdateTypes t ) {
-        synchronized (gui) {
-
-            System.out.println("[" + t.toString() + "] Updating GUI");
-
-            switch (t) {
-                case Banco: { gui.SetBanco(banco); break; }
-                case Barbeiros: { gui.SetBarbeiros(barbeiros); break; }
-                case Levantados: { gui.SetLevatados(clientesLevantados);break;}
-            
-                default: break;
+    public void updateGUI(UpdateTypes t) {
+        switch (t) {
+            case Banco: {
+                gui.SetBanco(banco);
+                break;
             }
+            case Levantados: {
+                gui.SetLevatados(clientesLevantados);
+                break;
+            }
+            default: break;
         }
-
     }
 
+    public void updateGUIBarbeiro( Barbeiro b, int idx ) {
+        this.gui.UpdateBarbeiro(b, idx);
+    }
 
 
 

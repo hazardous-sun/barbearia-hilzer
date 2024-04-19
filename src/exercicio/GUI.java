@@ -7,10 +7,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Label;
 import java.util.ArrayList;
 import java.util.Queue;
 
@@ -39,6 +36,9 @@ public class GUI extends JFrame {
         tbbarbeiros.addColumn("Fazendo");
         tbbarbeiros.addColumn("Cliente");
 
+        /**
+         * this table has fixed size 
+        */
         tbbarbeiros.addRow(new Object[]{ "Barbeiro 1", "Desconhecido", "Sem cliente" });
         tbbarbeiros.addRow(new Object[]{ "Barbeiro 2", "Desconhecido", "Sem cliente" });
         tbbarbeiros.addRow(new Object[]{ "Barbeiro 3", "Desconhecido", "Sem cliente" });
@@ -63,7 +63,6 @@ public class GUI extends JFrame {
         JScrollPane scroll1 = new JScrollPane(TableLevantados);
         JScrollPane scroll2 = new JScrollPane(TableBanco);
         JScrollPane scroll3 = new JScrollPane(TableBarbeiros);
-
 
         JPanel painel1 = new JPanel();
         JPanel painel2 = new JPanel();
@@ -114,10 +113,11 @@ public class GUI extends JFrame {
             });
         }      
     }
+
     public void SetLevatados(Queue<Cliente> cl) {
         DefaultTableModel model = (DefaultTableModel) TableLevantados.getModel();
 
-        LabelLevantados.setText("Levatados (" + cl.size() + ")");
+        LabelLevantados.setText("Levantados (" + cl.size() + ")");
 
         setClientesRows(model, cl);
     };
@@ -130,13 +130,24 @@ public class GUI extends JFrame {
         setClientesRows(model, cl);
     }
 
-    public void SetBarbeiros( ArrayList<Barbeiro> bs  ){
+    public void UpdateBarbeiro( Barbeiro b, int idx ) {
         DefaultTableModel model = (DefaultTableModel) TableBarbeiros.getModel();
-        
+
+        model.setValueAt(b.getStateName(), idx, 1);
+        model.setValueAt(b.getCurrentClienteName(), idx, 2);
+    }
+
+
+    /**
+     * @deprecated
+     */
+    public void SetBarbeiros( ArrayList<Barbeiro> bs  ){
+
+        DefaultTableModel model = (DefaultTableModel) TableBarbeiros.getModel();
         
         int i = 0;
         for (Barbeiro b : bs) {
-            model.setValueAt(b.getBarbeiroState(), i, 1);
+            model.setValueAt(b.getStateName(), i, 1);
             model.setValueAt(b.getCurrentClienteName(), i++, 2);
         }
     };

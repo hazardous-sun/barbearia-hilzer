@@ -52,8 +52,18 @@ public class Barbeiro extends Thread {
      */
     private void setState(BarbeirosState s) {
         this.state = s;
-        barbearia.updateGUI( UpdateTypes.Barbeiros );
-        
+
+        /**
+         * Os barbeiros possuem uma função
+         * de atualização individual na GUI;
+         * 
+         * Uma vez que podem trocar de estado
+         * dentro de um mesmo ciclo de renderização;
+         * 
+         * O que resulta em uma ConcurrentModificationException.
+         */
+        barbearia.updateGUIBarbeiro(this, cadeiraGerenciada - 1);
+
         /** 
          * Função CLI depreciada 
          * barbearia.Display();
@@ -149,6 +159,7 @@ public class Barbeiro extends Thread {
 
         // mantem a thread viva
         while (true) {
+            // System.out.println("barb " +getCadeiraGerenciada() + " Requesting client");
             /*
              * Requisita um cliente para na Barbearia
              * Cliente | Nulo
@@ -173,10 +184,10 @@ public class Barbeiro extends Thread {
                  * Se houver; Segue executando o loop normalmente, onde
                  * na próxima iteração requisitando outro cliente.
                  */
-                if ( ! barbearia.hasBanco() ) {
-                    this.dormir();
-                }
             }  
+            if ( ! barbearia.hasBanco() ) {
+                this.dormir();
+            }
         }
     }
     
@@ -195,7 +206,7 @@ public class Barbeiro extends Thread {
     /**
      * Função utilitária para GUI 
      */
-    private String getStateName() {
+    public String getStateName() {
         switch (this.state) {
             case ATENDENDO:      return "Atendendo";
             case AGUARDANDO_POS: return "Aguardando POS";
