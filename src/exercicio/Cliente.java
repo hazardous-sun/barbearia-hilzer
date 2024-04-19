@@ -1,12 +1,14 @@
+
 public class Cliente extends Thread {
-    public static int TotalClientes = 0;
+
+    public static int ClientesInstanciados = 0;
 
     private long horaChegada;
     private int nome;
 
     Cliente() {
         this.horaChegada = System.nanoTime();
-        this.nome = ++Cliente.TotalClientes;
+        this.nome = ++Cliente.ClientesInstanciados;
     }
 
     public int getNome() {

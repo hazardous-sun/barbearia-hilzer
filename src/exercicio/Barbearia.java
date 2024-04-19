@@ -1,11 +1,12 @@
-package exercicio.src.exercicio;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.nio.file.FileStore;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Barbearia {
     private final int QUANTIDADE_MAX_CLIENTES = 20;
@@ -15,24 +16,35 @@ public class Barbearia {
     private Queue<Cliente> clientesLevantados;
     private Queue<Cliente> banco;
 
+    /**
+     * Cada barbeiro administra a própria cadeira;
+     * 
+     * Tal qual barbearias de rede:
+     * Uma cadeira partence a um barbeiro 
+     * 
+     * :. o Cliente que ocupa uma cadeira, estará referenciado 
+     * pela instância de Barbeiro que a administra;
+     *    
+     */
     private ArrayList<Barbeiro> barbeiros;
 
+    public Maquininha maquininha;
 
-    private Maquininha maquininha;
+    private GUI gui;
 
     public static void main(String[] args) {
         Barbearia barbearia = new Barbearia();
-        
+
         for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
-            barbearia.barbeiros.add(new Barbeiro(barbearia));
-        }
-        
-        for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
-            barbearia.barbeiros.get(i).start();
+            Barbeiro b = new Barbeiro(barbearia);
+            b.start();
+
+            barbearia.barbeiros.add(b);
         }
 
         GeradorClientes geradorClientes = new GeradorClientes(barbearia);
         geradorClientes.start();
+
     }
 
     public Barbearia() {
@@ -40,30 +52,39 @@ public class Barbearia {
         this.banco = new LinkedList<>();
         this.barbeiros = new ArrayList<>();
         this.maquininha = new Maquininha();
+
+        this.gui = new GUI();
     }
 
+
+    /**
+     * Representa a chegada de um novo cliente
+     */
     public synchronized void addCliente(Cliente novoCliente) {
-        if ( populationExceeded() ) {
+
+        if (populationExceeded()) {
             return;
         }
 
-        clientesLevantados.add(novoCliente);
+        /*
+         * Não há necessidade de atualizar a GUI aqui
+         * Uma vez que preencherBanco() fará;
+         */
+        clientesLevantados.add(novoCliente);    
+        // updateGUI(UpdateTypes.Levantados);
 
         preencherBanco();
-
-        this.Display();
-
         acordaBarbeiros();
     }
 
+    /**
+     * Acorda os barbeiros que estão dormindo
+     */
     private void acordaBarbeiros() {
 
-        // tem que ajeitar essa bosta
-        // é apenas um prototipo
         for (Barbeiro b : barbeiros) {
 
             synchronized (b) {
-                // System.out.println("barb: " + b.getNome() + ": " + b.getState());
                 if (b.getBarbeiroState() == BarbeirosState.DORMINDO) {
                     b.notify();
                 }
@@ -71,60 +92,112 @@ public class Barbearia {
         }
     }
 
-    // Prototipo pra resolver o problema
-    public void barbeiroFinalizou ( Barbeiro b ) {
-        
-        synchronized (maquininha) {
-            maquininha.returnMaquininha();
-        }
-
-        if ( ! hasBanco() ) {
-            synchronized (b) {
-                b.dormir();
-            }
-        }
-    }
-
+    /**
+     * Popula o banco enquanto houver clientes levantados
+     * e espaço no banco
+     * 
+     * Atualiza a GUI 
+     */
     private void preencherBanco() {
         while (banco.size() < TAMANHO_BANCO && !clientesLevantados.isEmpty()) {
             banco.add(clientesLevantados.poll());
         }
+
+        updateGUI(UpdateTypes.Levantados);
+        updateGUI(UpdateTypes.Banco);
     }
 
+    /**
+     * Se a população total da barbearia foi excedida
+     */
     private boolean populationExceeded() {
         return totalPopulation() >= QUANTIDADE_MAX_CLIENTES;
     }
-    
+
+    /**
+     * Retorna a quantidade total de clientes sendo atendidos
+     */
+    public synchronized int cadeirasOcupadas () {
+        int i = 0;
+        for (Barbeiro b : barbeiros) {
+            if ( b.isAttending() ) {
+                i++;
+            }
+        }
+        return i;
+    }
+
+    /**
+     * População total incluindo quem está sendo atendido
+     */
     public synchronized int totalPopulation() {
+        return totalWaitingPopulation() + cadeirasOcupadas();
+    }
+
+    /**
+     * Apenas clientes que estão aguardando atendimento 
+     */
+    public synchronized int totalWaitingPopulation() {
         return clientesLevantados.size() + banco.size();
     }
 
+    /**
+     * Se há clientes no banco
+     */
     public boolean hasBanco() {
         return banco.size() > 0;
     }
 
-    public synchronized Cliente requestClient(  ) {
-        if ( totalPopulation() > 0 ) {
+    /*
+     * Se houver clientes no banco
+     *  | Retorna o cliente
+     *  | Senão: Retorna null
+     */
+    public synchronized Cliente requestClient() {
+        if (totalWaitingPopulation() > 0) {
             return chamarCliente();
         }
 
         return null;
     }
 
-    public synchronized Cliente chamarCliente() {
+    /**
+     * Retira o cliente do banco e o retorna;
+     * Preenche a vaga vazia do banco
+     */
+    private synchronized Cliente chamarCliente() {
         Cliente temp = banco.poll();
         preencherBanco();
-        
+
         return temp;
     }
 
-    public synchronized Maquininha requestPOS() {
-        return maquininha.getMaquininha();
+
+    
+    /**
+     * 
+     * @param t Tipo de atualização requisitada
+     * 
+     * Handler para a GUI, categorizado a fim de evitar
+     * processamento desnecessaŕio.
+     */
+    public synchronized void updateGUI( UpdateTypes t ) {
+        synchronized (gui) {
+
+            System.out.println("[" + t.toString() + "] Updating GUI");
+
+            switch (t) {
+                case Banco: { gui.SetBanco(banco); break; }
+                case Barbeiros: { gui.SetBarbeiros(barbeiros); break; }
+                case Levantados: { gui.SetLevatados(clientesLevantados);break;}
+            
+                default: break;
+            }
+        }
+
     }
 
-    public void Display() {
-        System.out.println(toString());
-    }
+
 
 
     /**
@@ -133,30 +206,41 @@ public class Barbearia {
      * 
      */
 
+    /**
+     * @deprecated
+     * @desc Função utilizada para printar os valores
+     *       Depreciada por conta da GUI.
+     */
+    public synchronized void Display() {
+         System.out.println(toString());
+    }
     @Override
     public String toString() {
+
         return "Barbearia{ \n"
-            + "\tBarbeiros = " + _getBarbeiros() + "\n"
-            + this._line(30)
-            + "\tBanco = " + banco.size() + "\n"
-            + this._line(30)
-            + "\tLevan = " + _getClientesLevantados() + "\n" 
-            + this._line(30)
-            + "\tMaqui = " + maquininha + "\n" 
-        + "}";
+                + "\tBarbeiros = " + _getBarbeiros() + "\n"
+                + this._line(30)
+                + "\tBanco = " + banco.size() + "\n"
+                + this._line(30)
+                + "\tLevan = " + _getClientesLevantados() + "\n"
+                + this._line(30)
+                + "\tMaqui = " + maquininha + "\n"
+                + "}";
     }
+
     private String _line(int size) {
         String s = "";
         for (int i = 0; i < size; i++) {
-            s+='-';
+            s += '-';
         }
-        return s+'\n';
+        return s + '\n';
     }
+
     private String _getClientesLevantados() {
         StringBuffer s = new StringBuffer();
         s.append('[');
 
-        clientesLevantados.forEach( c -> {
+        clientesLevantados.forEach(c -> {
             s.append(c.getNome() + " ");
         });
 
@@ -169,7 +253,7 @@ public class Barbearia {
         StringBuffer s = new StringBuffer();
         s.append("[ ");
 
-        barbeiros.forEach( b -> {
+        barbeiros.forEach(b -> {
             s.append("| " + b.toString() + " | ");
         });
 
