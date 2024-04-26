@@ -1,3 +1,5 @@
+package exercicio.src.exercicio;
+
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -31,6 +33,10 @@ public class Barbearia {
         Barbearia barbearia = new Barbearia();
 
         for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
+            barbearia.barbeiros.add(new Barbeiro(barbearia));
+        }
+
+        for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
             Barbeiro b = new Barbeiro(barbearia);
             b.start();
 
@@ -56,7 +62,6 @@ public class Barbearia {
      * Representa a chegada de um novo cliente
      */
     public synchronized void addCliente(Cliente novoCliente) {
-
         if (populationExceeded()) {
             return;
         }
@@ -75,7 +80,6 @@ public class Barbearia {
      * Acorda os barbeiros que estão dormindo
      */
     private void acordaBarbeiros() {
-
         for (Barbeiro b : barbeiros) {
 
             synchronized (b) {
@@ -83,9 +87,10 @@ public class Barbearia {
                     b.notify();
                 }
             }
+
         }
     }
-
+  
     /**
      * Popula o banco enquanto houver clientes levantados
      * e espaço no banco
@@ -124,6 +129,7 @@ public class Barbearia {
     /**
      * População total incluindo quem está sendo atendido
      */
+
     public synchronized int totalPopulation() {
         return totalWaitingPopulation() + cadeirasOcupadas();
     }
@@ -200,9 +206,7 @@ public class Barbearia {
 
 
     /**
-     * 
      * cli stuff
-     * 
      */
 
     /**
