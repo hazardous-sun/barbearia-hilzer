@@ -1,5 +1,3 @@
-package exercicio.src.exercicio;
-
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,17 +30,6 @@ public class Barbearia {
     public static void main(String[] args) {
         Barbearia barbearia = new Barbearia();
 
-        for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
-            barbearia.barbeiros.add(new Barbeiro(barbearia));
-        }
-
-        for (int i = 0; i < barbearia.QUANTIDADE_MAX_BARBEIROS; i++) {
-            Barbeiro b = new Barbeiro(barbearia);
-            b.start();
-
-            barbearia.barbeiros.add(b);
-        }
-
         GeradorClientes geradorClientes = new GeradorClientes(barbearia);
         geradorClientes.start();
 
@@ -55,6 +42,12 @@ public class Barbearia {
         this.maquininha = new Maquininha();
 
         this.gui = new GUI();
+        for (int i = 0; i < this.QUANTIDADE_MAX_BARBEIROS; i++) {
+            Barbeiro b = new Barbeiro(this);
+            b.start();
+
+            this.barbeiros.add(b);
+        }
     }
 
 
@@ -62,6 +55,7 @@ public class Barbearia {
      * Representa a chegada de um novo cliente
      */
     public synchronized void addCliente(Cliente novoCliente) {
+
         if (populationExceeded()) {
             return;
         }
@@ -80,6 +74,7 @@ public class Barbearia {
      * Acorda os barbeiros que estão dormindo
      */
     private void acordaBarbeiros() {
+
         for (Barbeiro b : barbeiros) {
 
             synchronized (b) {
@@ -87,10 +82,9 @@ public class Barbearia {
                     b.notify();
                 }
             }
-
         }
     }
-  
+
     /**
      * Popula o banco enquanto houver clientes levantados
      * e espaço no banco
@@ -129,7 +123,6 @@ public class Barbearia {
     /**
      * População total incluindo quem está sendo atendido
      */
-
     public synchronized int totalPopulation() {
         return totalWaitingPopulation() + cadeirasOcupadas();
     }
@@ -206,7 +199,9 @@ public class Barbearia {
 
 
     /**
+     * 
      * cli stuff
+     * 
      */
 
     /**
