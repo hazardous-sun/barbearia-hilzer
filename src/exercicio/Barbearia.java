@@ -37,11 +37,15 @@ public class Barbearia {
 
     public Barbearia() {
         this.clientesLevantados = new LinkedList<>();
+
+        // Requisito 3: banco, a lógica para manter no máximo 4 clientes é implementada em addCliente
         this.banco = new LinkedList<>();
         this.barbeiros = new ArrayList<>();
         this.maquininha = new Maquininha();
-
         this.gui = new GUI();
+
+        // Requisito 1: cada barbeiro cuida da sua própria cadeira
+        // Requisito 2: 3 barbeiros são inicializados
         for (int i = 0; i < this.QUANTIDADE_MAX_BARBEIROS; i++) {
             Barbeiro b = new Barbeiro(this);
             b.start();
@@ -55,7 +59,8 @@ public class Barbearia {
      * Representa a chegada de um novo cliente
      */
     public synchronized void addCliente(Cliente novoCliente) {
-
+        // Requisito 4 e 5: se a soma de clientes sendo atendidos + clientes no banco + clientes em pé for >= 20,
+        // nenhum cliente novo entra na barbearia
         if (populationExceeded()) {
             return;
         }
@@ -64,8 +69,9 @@ public class Barbearia {
          * Não há necessidade de atualizar a GUI aqui
          * Uma vez que preencherBanco() fará;
          */
-        clientesLevantados.add(novoCliente);    
+        clientesLevantados.add(novoCliente);
 
+        // Requisito 6: A lógica para que o banco tenha no máximo 4 clientes é implementada aqui
         preencherBanco();
         acordaBarbeiros();
     }

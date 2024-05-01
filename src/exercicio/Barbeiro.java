@@ -129,6 +129,8 @@ public class Barbeiro extends Thread {
         this.clienteAtual = c;
         
         this.atenderCliente(c);
+
+        // Requisito 8:
         this.cobrarCliente(c);
 
         this.clienteAtual = null;    
@@ -164,6 +166,7 @@ public class Barbeiro extends Thread {
              * Requisita um cliente para na Barbearia
              * Cliente | Nulo
              */
+            // Requisito 7
             Cliente c = barbearia.requestClient();
 
             /**

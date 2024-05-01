@@ -1,3 +1,4 @@
+// Requisito 9
 public enum BarbeirosState {
     UNINITIALIZED,
     ATENDENDO,
